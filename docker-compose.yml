@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  web_dev:
+    build: .
+    command: tail -f /dev/null
+    volumes:
+      - ./app:/usr/src/app/
+    ports:
+      - "9000:80"
+    env_file:
+      - ./.env
+    networks:
+      - dev
+    depends_on:
+      - mongo-express
+  mongo:
+    image: "mongo:3-stretch"
+    ports:
+      - "27014:27017"
+    networks:
+      - dev
+    volumes:
+      - mongodb:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${USERMONGO}
+      - MONGO_INITDB_ROOT_PASSWORD=${PASSWORDMONGO}
+  mongo-express:
+    image: mongo-express
+    restart: on-failure
+    ports:
+      - "8081:8081"
+    networks:
+      - dev
+    depends_on:
+      - mongo
+networks:
+    dev:
+      driver: bridge
+volumes:
+  mongodb:
